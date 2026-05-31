@@ -6,7 +6,7 @@ import requests
 USER_EMAIL    = os.environ.get("QUARTEX_EMAIL", "")
 USER_PASSWORD = os.environ.get("QUARTEX_PASSWORD", "")
 SERVER_ID     = os.environ.get("QUARTEX_SERVER_ID", "5070")
-TG_CONFIG     = os.environ.get("TG_CONFIG", "")   # 格式: chat_id bot_token
+TG_CONFIG     = os.environ.get("TG_CONFIG", "")   # 格式: chat_id:bot_token
 # ==================================================================
 
 LOGIN_URL = "https://api.quartexnode.com/api/v1/auth/login"
@@ -153,7 +153,11 @@ def try_renew() -> bool:
 
         elif resp.status_code == 400:
             print("距到期仍超 24 小时，无需续期。")
-            # 正常轮询结果，不推送
+            send_telegram("暂无需续期", [
+                ("服务器 ID", f"<code>{SERVER_ID}</code>"),
+                ("状态",      srv_msg or "距到期仍超 24 小时"),
+                ("时间",      ts),
+            ], "info")
             return False
 
         elif resp.status_code in (401, 403):
